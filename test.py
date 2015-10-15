@@ -11,7 +11,9 @@ PORT = 6667
 PASS = "oauth:uu4byfxrxg5n9odpzxzvsl9tt3oa78"
 readbuffer = ""
 MODT = False
-time = time.time()
+time_counter = time.time()
+command_user = []
+uses_left = []
  
 # Connecting to Twitch IRC by passing credentials and joining a certain channel
 s = socket.socket()
@@ -23,6 +25,31 @@ s.send("JOIN #tricodin \r\n")
 # Method for sending a message
 def Send_message(message):
 	s.send("PRIVMSG #tricodin :" + message + "\r\n")
+        
+def Command_used(username):
+        global time_counter
+        global command_user
+        global uses_left
+        time_diff = time.time() - time_counter
+        
+        if time_diff > 300:
+                command_user = []
+                uses_left = []
+        
+        if username in command_user:
+                i = command_user.index(username)
+                if uses_left[i] == 0:
+                        print "none left"
+                        print time_diff
+                        return False
+                else:
+                        uses_left[i] -= 1
+                        return True
+        else:
+                command_user.append(username)
+                uses_left.append(4)
+                return True
+                
  
  
 while True:
@@ -83,7 +110,8 @@ while True:
                                                         Send_message("I think you mean BrettySuzy, " + username)
                                                         
                                         if message == "!WR" or message == "!wr":
-                                                Send_message("٩( ᐛ )و WR ٩( ᐛ )و ")
+                                                if Command_used(username):
+                                                        Send_message("٩( ᐛ )و WR ٩( ᐛ )و ")
                                              
                                         if message == "!penguin" or message == "!Penguin":
                                                 Send_message("ᕕ( ' >' )ᕗ")
