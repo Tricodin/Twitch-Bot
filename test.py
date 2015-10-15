@@ -81,29 +81,30 @@ while True:
                     
                                         # You can add all your plain commands here
                                         if "!roll" in message or "Roll" in message:
-                                                if message == "!roll" or message == "!Roll":
-                                                        Send_message(username + " rolled " + str(randint(1, 20)) + "!")
-                                                elif message[:5] == "!roll":
-                                                        try:
-                                                                dice = string.split(message, "d")
-                                                                dNum = dice[0][5:]
-                                                                dSize = dice[1]
-                                                                dNum = int(dNum)
-                                                                dSize = int(dSize)
-                                                                if dNum > 10 or dSize > 100:
-                                                                        Send_message("Too big. Max is 10 dice or 100 sides.")
-                                                                        print dNum + " " + dSize
-                                                                else:
-                                                                        total_rolled = 0
-                                                                        rolled_out = "! ("
-                                                                        for i in range(0, dNum):
-                                                                                rolled_num = randint(1, dSize)
-                                                                                total_rolled = total_rolled + rolled_num
-                                                                                rolled_out = rolled_out + str(rolled_num) + " + "
+                                                if Command_used(username):
+                                                        if message == "!roll" or message == "!Roll":
+                                                                Send_message(username + " rolled " + str(randint(1, 20)) + "!")
+                                                        elif message[:5] == "!roll":
+                                                                try:
+                                                                        dice = string.split(message, "d")
+                                                                        dNum = dice[0][5:]
+                                                                        dSize = dice[1]
+                                                                        dNum = int(dNum)
+                                                                        dSize = int(dSize)
+                                                                        if dNum > 10 or dSize > 100:
+                                                                                Send_message("Too big. Max is 10 dice or 100 sides.")
+                                                                                print dNum + " " + dSize
+                                                                        else:
+                                                                                total_rolled = 0
+                                                                                rolled_out = "! ("
+                                                                                for i in range(0, dNum):
+                                                                                        rolled_num = randint(1, dSize)
+                                                                                        total_rolled = total_rolled + rolled_num
+                                                                                        rolled_out = rolled_out + str(rolled_num) + " + "
 
-                                                                        Send_message(username + " rolled " + str(total_rolled) + rolled_out[:-3] + ")")
-                                                        except:
-                                                                message = ""
+                                                                                Send_message(username + " rolled " + str(total_rolled) + rolled_out[:-3] + ")")
+                                                                except:
+                                                                        message = ""
                                                                 
                                         if "brett" in message or "Brett" in message:
                                                 if "bretty" not in message and "Bretty" not in message:
@@ -114,7 +115,8 @@ while True:
                                                         Send_message("٩( ᐛ )و WR ٩( ᐛ )و ")
                                              
                                         if message == "!penguin" or message == "!Penguin":
-                                                Send_message("ᕕ( ' >' )ᕗ")
+                                                if Command_used(username):
+                                                        Send_message("ᕕ( ' >' )ᕗ")
  
                                 for l in parts:
                                         if "End of /NAMES list" in l:
