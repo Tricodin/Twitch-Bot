@@ -14,6 +14,8 @@ MODT = False
 time_counter = time.time()
 command_user = []
 uses_left = []
+colours = ["Blue", "Coral", "DodgerBlue", "SpringGreen", "YellowGreen", "Green", "OrangeRed", "Red", "GoldenRod", "HotPink", "CadetBlue", "SeaGreen", "Chocolate", "BlueViolet", "Firebrick"]
+colour_index = 12
  
 # Connecting to Twitch IRC by passing credentials and joining a certain channel
 s = socket.socket()
@@ -25,6 +27,14 @@ s.send("JOIN #tricodin \r\n")
 # Method for sending a message
 def Send_message(message):
 	s.send("PRIVMSG #tricodin :" + message + "\r\n")
+        
+def Change_Colour():
+        global colour_index
+        global colours
+        colour_index = colour_index + 1
+        if colour_index > 14:
+                colour_index = 0
+        Send_message("/color " + colours[colour_index])
         
 def Command_used(username):
         global time_counter
@@ -39,8 +49,6 @@ def Command_used(username):
         if username in command_user:
                 i = command_user.index(username)
                 if uses_left[i] == 0:
-                        print "none left"
-                        print time_diff
                         return False
                 else:
                         uses_left[i] -= 1
@@ -83,6 +91,7 @@ while True:
                                         if "!roll" in message or "Roll" in message:
                                                 if Command_used(username):
                                                         if message == "!roll" or message == "!Roll":
+                                                                Change_Colour()
                                                                 Send_message(username + " rolled " + str(randint(1, 20)) + "!")
                                                         elif message[:5] == "!roll":
                                                                 try:
@@ -92,8 +101,8 @@ while True:
                                                                         dNum = int(dNum)
                                                                         dSize = int(dSize)
                                                                         if dNum > 10 or dSize > 100:
+                                                                                Change_Colour()
                                                                                 Send_message("Too big. Max is 10 dice or 100 sides.")
-                                                                                print dNum + " " + dSize
                                                                         else:
                                                                                 total_rolled = 0
                                                                                 rolled_out = "! ("
@@ -101,21 +110,24 @@ while True:
                                                                                         rolled_num = randint(1, dSize)
                                                                                         total_rolled = total_rolled + rolled_num
                                                                                         rolled_out = rolled_out + str(rolled_num) + " + "
-
+                                                                                Change_Colour()
                                                                                 Send_message(username + " rolled " + str(total_rolled) + rolled_out[:-3] + ")")
                                                                 except:
                                                                         message = ""
                                                                 
                                         if "brett" in message or "Brett" in message:
                                                 if "bretty" not in message and "Bretty" not in message:
+                                                        Change_Colour()
                                                         Send_message("I think you mean BrettySuzy, " + username)
                                                         
                                         if message == "!WR" or message == "!wr":
                                                 if Command_used(username):
+                                                        Change_Colour()
                                                         Send_message("٩( ᐛ )و WR ٩( ᐛ )و ")
                                              
                                         if message == "!penguin" or message == "!Penguin":
                                                 if Command_used(username):
+                                                        Change_Colour()
                                                         Send_message("ᕕ( ' >' )ᕗ")
  
                                 for l in parts:
