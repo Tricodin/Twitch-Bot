@@ -66,6 +66,7 @@ while True:
         readbuffer = temp.pop()
  
         for line in temp:
+                print line
                 # Checks whether the message is PING because its a method of Twitch to check if you're afk
                 if (line[:4] == "PING"):
                         s.send("PONG tmi.twitch.tv\r\n")
