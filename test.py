@@ -62,7 +62,18 @@ def Command_used(username):
                 
 def Set_Game(message):
         try:
-                dict = requests.put('https://api.twitch.tv/kraken/channels/tricodin?oauth_token=486z221swxbmqar075ef26anzi90aw&Accept=application/vnd.twitchtv.v3+json&channel[game]=' + message[6:])
+                dict = requests.put('https://api.twitch.tv/kraken/channels/tricodin?oauth_token=486z221swxbmqar075ef26anzi90aw&Accept=application/vnd.twitchtv.v3+json&channel[game]=' + message)
+        except:
+                dict = ""
+                
+def Set_Title(message):
+        try:
+                title = ""
+                title_parts = string.split(message, " ")
+                for word in title_parts:
+                        title = title + word + "+"
+                print title
+                dict = requests.put('https://api.twitch.tv/kraken/channels/tricodin?oauth_token=486z221swxbmqar075ef26anzi90aw&Accept=application/vnd.twitchtv.v3+json&channel[status]=' + title[:-1])
         except:
                 dict = ""
                 
@@ -72,7 +83,6 @@ while True:
         readbuffer = temp.pop()
  
         for line in temp:
-                print line
                 # Checks whether the message is PING because its a method of Twitch to check if you're afk
                 if (line[:4] == "PING"):
                         s.send("PONG tmi.twitch.tv\r\n")
@@ -137,9 +147,12 @@ while True:
                                                         Change_Colour()
                                                         Send_message("ᕕ( ' >' )ᕗ")
                                                         
-                                        if "!game" in message or "!Game" in message:
-                                                Set_Game(message)
- 
+                                        if message[:5] == "!game" or message[:5] == "!Game":
+                                                Set_Game(message[6:])
+                                                
+                                        if message[:6] == "!title" or message[:6] == "!Title":
+                                                Set_Title(message[7:])
+                                                
                                 for l in parts:
                                         if "End of /NAMES list" in l:
                                                 MODT = True
