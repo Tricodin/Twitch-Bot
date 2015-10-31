@@ -4,9 +4,7 @@ import json
 import requests
 
 #gttkgjljwcvgr410yttc3aouq8jkim
-thing = json.loads('{"channel": {"status": "If I can see this, it worked", "game": "Diablo"}}')
-print thing
-dict = requests.put('https://api.twitch.tv/kraken/channels/tricodin?oauth_token=486z221swxbmqar075ef26anzi90aw&Accept=application/vnd.twitchtv.v3+json&channel[status]=Playing+cool+new+game!&channel[game]=Diablo')
+dict = requests.put('https://api.twitch.tv/kraken/channels/tricodin?oauth_token=486z221swxbmqar075ef26anzi90aw&Accept=application/vnd.twitchtv.v3+json&channel[status]=Playing+cool+new+game!&channel[game]=hteqhatrh')
 dict.raise_for_status()
 result = json.loads(dict.text)
 

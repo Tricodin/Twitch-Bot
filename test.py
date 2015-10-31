@@ -3,6 +3,8 @@
 from random import randint
 import socket, string
 import time
+import json
+import requests
  
 # Set all the variables necessary to connect to Twitch IRC
 HOST = "irc.twitch.tv"
@@ -58,11 +60,15 @@ def Command_used(username):
                 uses_left.append(4)
                 return True
                 
- 
- 
+def Set_Game(message):
+        try:
+                dict = requests.put('https://api.twitch.tv/kraken/channels/tricodin?oauth_token=486z221swxbmqar075ef26anzi90aw&Accept=application/vnd.twitchtv.v3+json&channel[game]=' + message[6:])
+        except:
+                dict = ""
+                
 while True:
-	readbuffer = readbuffer + s.recv(1024)
-	temp = string.split(readbuffer, "\n")
+        readbuffer = readbuffer + s.recv(1024)
+        temp = string.split(readbuffer, "\n")
         readbuffer = temp.pop()
  
         for line in temp:
@@ -130,6 +136,9 @@ while True:
                                                 if Command_used(username):
                                                         Change_Colour()
                                                         Send_message("ᕕ( ' >' )ᕗ")
+                                                        
+                                        if "!game" in message or "!Game" in message:
+                                                Set_Game(message)
  
                                 for l in parts:
                                         if "End of /NAMES list" in l:
