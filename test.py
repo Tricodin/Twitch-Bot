@@ -120,8 +120,6 @@ while True:
         if no_message:
                 continue
         else:
-                print temp 
-                print recived_from
                 
                 for line in temp:
                         # Checks whether the message is PING because its a method of Twitch to check if you're afk
@@ -133,11 +131,12 @@ while True:
                         else:
                                 # Splits the given string so we can work with it better
                                 parts = string.split(line, ":")
+                                print parts
          
                                 if "QUIT" not in parts[1] and "JOIN" not in parts[1] and "PART" not in parts[1]:
                                         try:
                                                 # Sets the message variable to the actual message sent
-                                                message = parts[2][:len(parts[2]) - 1]
+                                                message = ':'.join(parts[2:])
                                         except:
                                                 message = ""
                                         # Sets the username variable to the actual username
@@ -172,7 +171,10 @@ while True:
                                                                                                 total_rolled = total_rolled + rolled_num
                                                                                                 rolled_out = rolled_out + str(rolled_num) + " + "
                                                                                         Change_Colour()
-                                                                                        Send_message(username + " rolled " + str(total_rolled) + rolled_out[:-3] + ")")
+                                                                                        if dNum == 1:
+                                                                                                Send_message(username + " rolled " + str(total_rolled) + "!")
+                                                                                        else:
+                                                                                                Send_message(username + " rolled " + str(total_rolled) + rolled_out[:-3] + ")")
                                                                         except:
                                                                                 message = ""
                                                                         
