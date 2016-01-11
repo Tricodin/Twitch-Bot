@@ -12,10 +12,12 @@ NICK = "tricbot"
 PORT = 6667
 PASS = "oauth:uu4byfxrxg5n9odpzxzvsl9tt3oa78"
 readbuffer = ""
-MODT = False
+MODT = 0
 time_counter = time.time()
 command_user = []
 uses_left = []
+mod_list = []
+channel_list = ["tricodin", "baldjared"]
 colours = ["Blue", "Coral", "DodgerBlue", "SpringGreen", "YellowGreen", "Green", "OrangeRed", "Red", "GoldenRod", "HotPink", "CadetBlue", "SeaGreen", "Chocolate", "BlueViolet", "Firebrick"]
 colour_index = 12
  
@@ -28,22 +30,30 @@ s2.send("PASS " + PASS + "\r\n")
 s2.send("NICK " + NICK + "\r\n")
 s.send("PASS " + PASS + "\r\n")
 s.send("NICK " + NICK + "\r\n")
-s.send("JOIN #tricodin \r\n")
+for c in channel_list:
+        s.send("JOIN #" + c + " \r\n")
+s.send("CAP REQ :twitch.tv/commands \r\n")
 s2.send("CAP REQ :twitch.tv/commands \r\n")
 s.settimeout(0.1)
 s2.settimeout(0.1)
 
 # Method for sending a message
-def Send_message(message):
-	s.send("PRIVMSG #tricodin :" + message + "\r\n")
+def Send_message(channel, message):
+        global recived_from
+        if recived_from == 1:
+                Change_Colour(channel)
+                s.send("PRIVMSG #" + channel + " :" + message + "\r\n")
+        else:
+                global username
+                s2.send("PRIVMSG #jtv :/w " + username + " " + message + "\r\n")
         
-def Change_Colour():
+def Change_Colour(channel):
         global colour_index
         global colours
         colour_index = colour_index + 1
         if colour_index > 14:
                 colour_index = 0
-        Send_message("/color " + colours[colour_index])
+        s.send("PRIVMSG #" + channel + " :/color " + colours[colour_index] + "\r\n")
         
 def Command_used(username):
         global time_counter
@@ -68,12 +78,16 @@ def Command_used(username):
                 return True
                 
 def Set_Game(message):
+        if "+" in message:
+                message = string.replace(message, "+", "%2B")
         try:
                 dict = requests.put('https://api.twitch.tv/kraken/channels/tricodin?oauth_token=486z221swxbmqar075ef26anzi90aw&Accept=application/vnd.twitchtv.v3+json&channel[game]=' + message)
         except:
                 dict = ""
                 
 def Set_Title(message):
+        if "+" in message:
+                message = string.replace(message, "+", "%2B")
         try:
                 title = ""
                 title_parts = string.split(message, " ")
@@ -83,26 +97,35 @@ def Set_Title(message):
         except:
                 dict = ""
 
+def Get_Mod_List(channel):
+        Send_message(channel, "/mods")
+        
+def Is_Permited(channel, user):
+        global mod_list
+        global channel_list
+        i = channel_list.index(channel)
+        if user in mod_list[i] or user == channel:
+                return True
+        else:
+                return False
+                
 def Recive_Message(recived_from):
         try:    
                 global readbuffer
                 if recived_from == 1:
                         readbuffer = readbuffer + s.recv(1024)
                 else:
-                       readbuffer = readbuffer + s2.recv(1024) 
+                        readbuffer = readbuffer + s2.recv(1024) 
                 temp = string.split(readbuffer, "\n")
                 readbuffer = temp.pop()
         except socket.timeout, e:
                 err = e.args[0]
-                # this next if/else is a bit redundant, but illustrates how the
-                # timeout exception is setup
                 if err == 'timed out':
                         return ""
                 else:
                         print e
                         sys.exit(1)
         except socket.error, e:
-                # Something else happened, handle error, exit, etc.
                 print e
                 sys.exit(1)
         else:
@@ -120,7 +143,7 @@ while True:
         if no_message:
                 continue
         else:
-                
+                print temp
                 for line in temp:
                         # Checks whether the message is PING because its a method of Twitch to check if you're afk
                         if (line[:4] == "PING"):
@@ -131,28 +154,36 @@ while True:
                         else:
                                 # Splits the given string so we can work with it better
                                 parts = string.split(line, ":")
-                                print parts
-         
-                                if "QUIT" not in parts[1] and "JOIN" not in parts[1] and "PART" not in parts[1]:
+                                
+                                if "NOTICE" in parts[1] and "moderators" in parts[2]:
+                                        mod_list.append(string.split(parts[3][1:-1], ", "))
+                                if "QUIT" not in parts[1] and "JOIN" not in parts[1] and "PART" not in parts[1] and "USERSTATE" not in parts[1] and "NOTICE" not in parts[1]:
                                         try:
                                                 # Sets the message variable to the actual message sent
                                                 message = ':'.join(parts[2:])
+                                                message = message[:-1]
                                         except:
                                                 message = ""
                                         # Sets the username variable to the actual username
                                         usernamesplit = string.split(parts[1], "!")
                                         username = usernamesplit[0]
+                                        
+                                        if "WHISPER" in parts[1]:
+                                                channel = ""
+                                        else:
+                                                for c in channel_list:
+                                                        if "#" + c in parts[1]:
+                                                                channel = c
                        
                                         # Only works after twitch is done announcing stuff (MODT = Message of the day)
-                                        if MODT:
+                                        if MODT == 2:
                                                 print username + ": " + message
                             
                                                 # You can add all your plain commands here
                                                 if "!roll" in message or "Roll" in message:
                                                         if Command_used(username):
                                                                 if message == "!roll" or message == "!Roll":
-                                                                        Change_Colour()
-                                                                        Send_message(username + " rolled " + str(randint(1, 20)) + "!")
+                                                                        Send_message(channel, username + " rolled " + str(randint(1, 20)) + "!")
                                                                 elif message[:5] == "!roll":
                                                                         try:
                                                                                 dice = string.split(message, "d")
@@ -161,8 +192,7 @@ while True:
                                                                                 dNum = int(dNum)
                                                                                 dSize = int(dSize)
                                                                                 if dNum > 10 or dSize > 100:
-                                                                                        Change_Colour()
-                                                                                        Send_message("Too big. Max is 10 dice or 100 sides.")
+                                                                                        Send_message(channel, "Too big. Max is 10 dice or 100 sides.")
                                                                                 else:
                                                                                         total_rolled = 0
                                                                                         rolled_out = "! ("
@@ -170,36 +200,47 @@ while True:
                                                                                                 rolled_num = randint(1, dSize)
                                                                                                 total_rolled = total_rolled + rolled_num
                                                                                                 rolled_out = rolled_out + str(rolled_num) + " + "
-                                                                                        Change_Colour()
                                                                                         if dNum == 1:
-                                                                                                Send_message(username + " rolled " + str(total_rolled) + "!")
+                                                                                                Send_message(channel, username + " rolled " + str(total_rolled) + "!")
                                                                                         else:
-                                                                                                Send_message(username + " rolled " + str(total_rolled) + rolled_out[:-3] + ")")
+                                                                                                Send_message(channel, username + " rolled " + str(total_rolled) + rolled_out[:-3] + ")")
                                                                         except:
                                                                                 message = ""
-                                                                        
-                                                if "brett" in message or "Brett" in message:
-                                                        if "bretty" not in message and "Bretty" not in message:
-                                                                Change_Colour()
-                                                                Send_message("I think you mean BrettySuzy, " + username)
+                                                
+                                                if "!time" in message or "!Time" in message:
+                                                        if Command_used(username):
+                                                                if message == "!time" or message == "!Time":
+                                                                        clock = time.strftime("%H:%M:%S", time.localtime(time.time()))
+                                                                        clock = string.split(clock, ":")
+                                                                        phours = int(clock[0])
+                                                                        pmin = int(clock[1]) + (60 * phours)
+                                                                        psec = int(clock[2]) + (60 * pmin)
+                                                                        pclock = psec / 864.0
+                                                                        pclock = '%.2f' % round(pclock, 2)
+                                                                        Send_message(channel, "It is " + pclock + "%")
+                                                                
+                                                if message == "!orb" or message == "!Orb":
+                                                        if Command_used(username):
+                                                                Send_message(channel, "🔮")    
                                                                 
                                                 if message == "!WR" or message == "!wr":
                                                         if Command_used(username):
-                                                                Change_Colour()
-                                                                Send_message("٩( ᐛ )و WR ٩( ᐛ )و ")
+                                                                Send_message(channel, "٩( ᐛ )و WR ٩( ᐛ )و ")
                                                      
                                                 if message == "!penguin" or message == "!Penguin":
                                                         if Command_used(username):
-                                                                Change_Colour()
-                                                                Send_message("ᕕ( ' >' )ᕗ")
+                                                                Send_message(channel, "ᕕ( ' >' )ᕗ")
                                                                         
                                                 if message[:5] == "!game" or message[:5] == "!Game":
+                                                        
                                                         Set_Game(message[6:])
                                                         
                                                 if message[:6] == "!title" or message[:6] == "!Title":
                                                         Set_Title(message[7:])
          
                                         for l in parts:
-                                                if "twitch.tv/commands" in l:
-                                                        MODT = True
-                
+                                                if "twitch.tv/commands" in l and MODT != 2:
+                                                        MODT += 1
+                                                        if MODT == 2:
+                                                                for c in channel_list:
+                                                                        Get_Mod_List(c)
