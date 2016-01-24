@@ -5,12 +5,9 @@ import socket, string
 import time
 import json
 import requests
+import login
  
 # Set all the variables necessary to connect to Twitch IRC
-HOST = "irc.twitch.tv"
-NICK = "tricbot"
-PORT = 6667
-PASS = "oauth:uu4byfxrxg5n9odpzxzvsl9tt3oa78"
 readbuffer = ""
 MODT = 0
 time_counter = time.time()
@@ -24,12 +21,12 @@ colour_index = 12
 # Connecting to Twitch IRC by passing credentials and joining a certain channel
 s = socket.socket()
 s2 = socket.socket()
-s.connect((HOST, PORT))
+s.connect(("irc.twitch.tv", 6667))
 s2.connect(("199.9.253.59", 443))
-s2.send("PASS " + PASS + "\r\n")
-s2.send("NICK " + NICK + "\r\n")
-s.send("PASS " + PASS + "\r\n")
-s.send("NICK " + NICK + "\r\n")
+s2.send("PASS " + login.PASS + "\r\n")
+s2.send("NICK " + login.NICK + "\r\n")
+s.send("PASS " + login.PASS + "\r\n")
+s.send("NICK " + login.NICK + "\r\n")
 for c in channel_list:
         s.send("JOIN #" + c + " \r\n")
 s.send("CAP REQ :twitch.tv/commands \r\n")
@@ -81,7 +78,7 @@ def Set_Game(message):
         if "+" in message:
                 message = string.replace(message, "+", "%2B")
         try:
-                dict = requests.put('https://api.twitch.tv/kraken/channels/tricodin?oauth_token=486z221swxbmqar075ef26anzi90aw&Accept=application/vnd.twitchtv.v3+json&channel[game]=' + message)
+                dict = requests.put('https://api.twitch.tv/kraken/channels/tricodin?oauth_token=' + login.oauth_token + '&Accept=application/vnd.twitchtv.v3+json&channel[game]=' + message)
         except:
                 dict = ""
                 
@@ -93,7 +90,7 @@ def Set_Title(message):
                 title_parts = string.split(message, " ")
                 for word in title_parts:
                         title = title + word + "+"
-                dict = requests.put('https://api.twitch.tv/kraken/channels/tricodin?oauth_token=486z221swxbmqar075ef26anzi90aw&Accept=application/vnd.twitchtv.v3+json&channel[status]=' + title[:-1])
+                dict = requests.put('https://api.twitch.tv/kraken/channels/tricodin?oauth_token=' + login.oauth_token + '&Accept=application/vnd.twitchtv.v3+json&channel[status]=' + title[:-1])
         except:
                 dict = ""
 
