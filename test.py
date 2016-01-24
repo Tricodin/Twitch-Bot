@@ -17,7 +17,7 @@ time_counter = time.time()
 command_user = []
 uses_left = []
 mod_list = []
-channel_list = ["tricodin", "baldjared"]
+channel_list = ["tricodin", "vorfalath", "lucinadanger"]
 colours = ["Blue", "Coral", "DodgerBlue", "SpringGreen", "YellowGreen", "Green", "OrangeRed", "Red", "GoldenRod", "HotPink", "CadetBlue", "SeaGreen", "Chocolate", "BlueViolet", "Firebrick"]
 colour_index = 12
  
@@ -216,6 +216,16 @@ while True:
                                                                         pmin = int(clock[1]) + (60 * phours)
                                                                         psec = int(clock[2]) + (60 * pmin)
                                                                         pclock = psec / 864.0
+                                                                        pclock = '%.2f' % round(pclock, 2)
+                                                                        Send_message(channel, "It is " + pclock + "%")
+                                                                elif message.lower() == "!timepst":
+                                                                        clock = time.strftime("%H:%M:%S", time.localtime(time.time()))
+                                                                        clock = string.split(clock, ":")
+                                                                        phours = int(clock[0])
+                                                                        pmin = int(clock[1]) + (60 * phours)
+                                                                        psec = int(clock[2]) + (60 * pmin)
+                                                                        pclock = (psec - 16200) % 86400
+                                                                        pclock = pclock / 864.0
                                                                         pclock = '%.2f' % round(pclock, 2)
                                                                         Send_message(channel, "It is " + pclock + "%")
                                                                 
