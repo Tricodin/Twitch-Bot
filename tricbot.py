@@ -177,11 +177,11 @@ while True:
                                                 print username + ": " + message
                             
                                                 # You can add all your plain commands here
-                                                if "!roll" in message or "Roll" in message:
+                                                if "!roll" in message[:5].lower():
                                                         if Command_used(username):
-                                                                if message == "!roll" or message == "!Roll":
+                                                                if message.lower() == "!roll":
                                                                         Send_message(channel, username + " rolled " + str(randint(1, 20)) + "!")
-                                                                elif message[:5] == "!roll":
+                                                                else:
                                                                         try:
                                                                                 dice = string.split(message, "d")
                                                                                 dNum = dice[0][5:]
@@ -204,8 +204,12 @@ while True:
                                                                         except:
                                                                                 message = ""
                                                 
-                                                if "!time" in message or "!Time" in message:
+                                                if message[:5].lower() == "!time":
                                                         if Command_used(username):
+                                                                time_split = string.split(message, " ")
+                                                                if time_split[1] == "r":
+                                                                        print "shit"
+                                                        
                                                                 if message == "!time" or message == "!Time":
                                                                         clock = time.strftime("%H:%M:%S", time.localtime(time.time()))
                                                                         clock = string.split(clock, ":")
@@ -226,23 +230,22 @@ while True:
                                                                         pclock = '%.2f' % round(pclock, 2)
                                                                         Send_message(channel, "It is " + pclock + "%")
                                                                 
-                                                if message == "!orb" or message == "!Orb":
+                                                if message.lower() == "!orb":
                                                         if Command_used(username):
                                                                 Send_message(channel, "🔮")    
                                                                 
-                                                if message == "!WR" or message == "!wr":
+                                                if message.lower() == "!wr":
                                                         if Command_used(username):
                                                                 Send_message(channel, "٩( ᐛ )و WR ٩( ᐛ )و ")
                                                      
-                                                if message == "!penguin" or message == "!Penguin":
+                                                if message.lower() == "!penguin":
                                                         if Command_used(username):
                                                                 Send_message(channel, "ᕕ( ' >' )ᕗ")
                                                                         
-                                                if message[:5] == "!game" or message[:5] == "!Game":
-                                                        
+                                                if message[:5].lower() == "!game":
                                                         Set_Game(message[6:])
                                                         
-                                                if message[:6] == "!title" or message[:6] == "!Title":
+                                                if message[:6].lower() == "!title":
                                                         Set_Title(message[7:])
          
                                         for l in parts:
