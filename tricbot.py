@@ -14,7 +14,7 @@ time_counter = time.time()
 command_user = []
 uses_left = []
 mod_list = []
-channel_list = ["tricodin", "vorfalath", "lucinadanger"]
+channel_list = ["bacing", "dounlode"]
 colours = ["Blue", "Coral", "DodgerBlue", "SpringGreen", "YellowGreen", "Green", "OrangeRed", "Red", "GoldenRod", "HotPink", "CadetBlue", "SeaGreen", "Chocolate", "BlueViolet", "Firebrick"]
 colour_index = 12
  
@@ -203,33 +203,34 @@ while True:
                                                                                                 Send_message(channel, username + " rolled " + str(total_rolled) + rolled_out[:-3] + ")")
                                                                         except:
                                                                                 message = ""
-                                                
+                                                '''
                                                 if message[:5].lower() == "!time":
                                                         if Command_used(username):
                                                                 time_split = string.split(message, " ")
-                                                                if time_split[1] == "r":
-                                                                        print "shit"
+                                                                try:
+                                                                        if time_split[1] == "r":
+                                                                                print "shit"
                                                         
-                                                                if message == "!time" or message == "!Time":
-                                                                        clock = time.strftime("%H:%M:%S", time.localtime(time.time()))
-                                                                        clock = string.split(clock, ":")
-                                                                        phours = int(clock[0])
-                                                                        pmin = int(clock[1]) + (60 * phours)
-                                                                        psec = int(clock[2]) + (60 * pmin)
-                                                                        pclock = psec / 864.0
-                                                                        pclock = '%.2f' % round(pclock, 2)
-                                                                        Send_message(channel, "It is " + pclock + "%")
-                                                                elif message.lower() == "!timepst":
-                                                                        clock = time.strftime("%H:%M:%S", time.localtime(time.time()))
-                                                                        clock = string.split(clock, ":")
-                                                                        phours = int(clock[0])
-                                                                        pmin = int(clock[1]) + (60 * phours)
-                                                                        psec = int(clock[2]) + (60 * pmin)
-                                                                        pclock = (psec - 16200) % 86400
-                                                                        pclock = pclock / 864.0
-                                                                        pclock = '%.2f' % round(pclock, 2)
-                                                                        Send_message(channel, "It is " + pclock + "%")
-                                                                
+                                                                        if message.lower() == "!time":
+                                                                                clock = time.strftime("%H:%M:%S", time.localtime(time.time()))
+                                                                                clock = string.split(clock, ":")
+                                                                                phours = int(clock[0])
+                                                                                pmin = int(clock[1]) + (60 * phours)
+                                                                                psec = int(clock[2]) + (60 * pmin)
+                                                                                pclock = psec / 864.0
+                                                                                pclock = '%.2f' % round(pclock, 2)
+                                                                                Send_message(channel, "It is " + pclock + "%")
+                                                                        elif message.lower() == "!timepst":
+                                                                                clock = time.strftime("%H:%M:%S", time.localtime(time.time()))
+                                                                                clock = string.split(clock, ":")
+                                                                                phours = int(clock[0])
+                                                                                pmin = int(clock[1]) + (60 * phours)
+                                                                                psec = int(clock[2]) + (60 * pmin)
+                                                                                pclock = (psec - 16200) % 86400
+                                                                                pclock = pclock / 864.0
+                                                                                pclock = '%.2f' % round(pclock, 2)
+                                                                                Send_message(channel, "It is " + pclock + "%")
+                                                '''
                                                 if message.lower() == "!orb":
                                                         if Command_used(username):
                                                                 Send_message(channel, "🔮")    
