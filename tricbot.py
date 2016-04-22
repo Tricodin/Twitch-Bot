@@ -1,57 +1,53 @@
 # -*- coding: utf-8 -*-
 
 from random import randint
-import socket, string
+import socket
+import string
 import time
 import json
 import requests
 import login
- 
+
 # Set all the variables necessary to connect to Twitch IRC
-readbuffer = ""
-MODT = 0
+MOTD = False
 time_counter = time.time()
 command_user = []
 uses_left = []
 mod_list = []
-channel_list = ["bacing", "dounlode"]
+channel_list = ["tricodin"]
 colours = ["Blue", "Coral", "DodgerBlue", "SpringGreen", "YellowGreen", "Green", "OrangeRed", "Red", "GoldenRod", "HotPink", "CadetBlue", "SeaGreen", "Chocolate", "BlueViolet", "Firebrick"]
 colour_index = 12
  
 # Connecting to Twitch IRC by passing credentials and joining a certain channel
 s = socket.socket()
-s2 = socket.socket()
-s.connect(("irc.twitch.tv", 6667))
-s2.connect(("199.9.253.59", 443))
-s2.send("PASS " + login.PASS + "\r\n")
-s2.send("NICK " + login.NICK + "\r\n")
+s.connect(("irc.chat.twitch.tv", 80))
 s.send("PASS " + login.PASS + "\r\n")
 s.send("NICK " + login.NICK + "\r\n")
 for c in channel_list:
         s.send("JOIN #" + c + " \r\n")
 s.send("CAP REQ :twitch.tv/commands \r\n")
-s2.send("CAP REQ :twitch.tv/commands \r\n")
 s.settimeout(0.1)
-s2.settimeout(0.1)
+
 
 # Method for sending a message
 def Send_message(channel, message):
-        global recived_from
-        if recived_from == 1:
+        if channel != "":
                 Change_Colour(channel)
                 s.send("PRIVMSG #" + channel + " :" + message + "\r\n")
         else:
                 global username
-                s2.send("PRIVMSG #jtv :/w " + username + " " + message + "\r\n")
-        
+                s.send("PRIVMSG #jtv :/w " + username + " " + message + "\r\n")
+
+
 def Change_Colour(channel):
         global colour_index
         global colours
-        colour_index = colour_index + 1
+        colour_index += 1
         if colour_index > 14:
                 colour_index = 0
         s.send("PRIVMSG #" + channel + " :/color " + colours[colour_index] + "\r\n")
-        
+
+
 def Command_used(username):
         global time_counter
         global command_user
@@ -73,16 +69,19 @@ def Command_used(username):
                 command_user.append(username)
                 uses_left.append(4)
                 return True
-                
+
+
 def Set_Game(message):
         if "+" in message:
                 message = string.replace(message, "+", "%2B")
         try:
-                dict = requests.put('https://api.twitch.tv/kraken/channels/tricodin?oauth_token=' + login.oauth_token + '&Accept=application/vnd.twitchtv.v3+json&channel[game]=' + message)
+                requests.put('https://api.twitch.tv/kraken/channels/tricodin?oauth_token=' + login.oauth_token + '&Accept=application/vnd.twitchtv.v3+json&channel[game]=' + message)
         except:
-                dict = ""
-                
-def Set_Title(message):
+                return
+
+
+
+def set_title(message):
         if "+" in message:
                 message = string.replace(message, "+", "%2B")
         try:
@@ -90,29 +89,32 @@ def Set_Title(message):
                 title_parts = string.split(message, " ")
                 for word in title_parts:
                         title = title + word + "+"
-                dict = requests.put('https://api.twitch.tv/kraken/channels/tricodin?oauth_token=' + login.oauth_token + '&Accept=application/vnd.twitchtv.v3+json&channel[status]=' + title[:-1])
+                requests.put('https://api.twitch.tv/kraken/channels/tricodin?oauth_token=' + login.oauth_token + '&Accept=application/vnd.twitchtv.v3+json&channel[status]=' + title[:-1])
         except:
-                dict = ""
+                return
 
-def Get_Mod_List(channel):
+
+def get_mod_list(channel):
         Send_message(channel, "/mods")
-        
-def Is_Permited(channel, user):
+
+
+def is_permitted(channel, user):
         global mod_list
         global channel_list
-        i = channel_list.index(channel)
-        if user in mod_list[i] or user == channel:
-                return True
+        if channel != "":
+                i = channel_list.index(channel)
+                if user in mod_list[i] or user == channel:
+                        return True
+                else:
+                        return False
         else:
                 return False
-                
-def Recive_Message(recived_from):
-        try:    
-                global readbuffer
-                if recived_from == 1:
-                        readbuffer = readbuffer + s.recv(1024)
-                else:
-                        readbuffer = readbuffer + s2.recv(1024) 
+
+
+def receive_message():
+        try:
+                readbuffer = ""
+                readbuffer = readbuffer + s.recv(1024)
                 temp = string.split(readbuffer, "\n")
                 readbuffer = temp.pop()
         except socket.timeout, e:
@@ -129,25 +131,15 @@ def Recive_Message(recived_from):
                 return temp
                 
 while True:
-        no_message = False
-        recived_from = 1
-        temp = Recive_Message(recived_from)
+        temp = receive_message()
         if temp == "":
-                recived_from = 2
-                temp = Recive_Message(recived_from)
-                if temp == "":
-                        no_message = True
-        if no_message:
                 continue
         else:
                 print temp
                 for line in temp:
                         # Checks whether the message is PING because its a method of Twitch to check if you're afk
                         if (line[:4] == "PING"):
-                                if recived_from == 1:
-                                        s.send("PONG tmi.twitch.tv\r\n")
-                                elif recived_from == 2:
-                                        s2.send("PONG tmi.twitch.tv\r\n")
+                                s.send("PONG tmi.twitch.tv\r\n")
                         else:
                                 # Splits the given string so we can work with it better
                                 parts = string.split(line, ":")
@@ -173,7 +165,7 @@ while True:
                                                                 channel = c
                        
                                         # Only works after twitch is done announcing stuff (MODT = Message of the day)
-                                        if MODT == 2:
+                                        if MOTD:
                                                 print username + ": " + message
                             
                                                 # You can add all your plain commands here
@@ -230,7 +222,15 @@ while True:
                                                                                 pclock = pclock / 864.0
                                                                                 pclock = '%.2f' % round(pclock, 2)
                                                                                 Send_message(channel, "It is " + pclock + "%")
+                                                
+                                                if message.lower() == "!test":
+                                                        if Command_used(username):
+                                                                target = open(var/www/tricbot.me/html/trash.html, 'w')
+                                                                target.truncate()
+                                                                target.write("done")
+                                                                Send_message(channel, "done")
                                                 '''
+                                                                
                                                 if message.lower() == "!orb":
                                                         if Command_used(username):
                                                                 Send_message(channel, "🔮")    
@@ -247,11 +247,10 @@ while True:
                                                         Set_Game(message[6:])
                                                         
                                                 if message[:6].lower() == "!title":
-                                                        Set_Title(message[7:])
+                                                        set_title(message[7:])
          
                                         for l in parts:
-                                                if "twitch.tv/commands" in l and MODT != 2:
-                                                        MODT += 1
-                                                        if MODT == 2:
-                                                                for c in channel_list:
-                                                                        Get_Mod_List(c)
+                                                if "twitch.tv/commands" in l and not MOTD:
+                                                        MOTD = True
+                                                        for c in channel_list:
+                                                                        get_mod_list(c)
